@@ -60,7 +60,7 @@ namespace WinIRCL.IRC
                 switch (msg.mtype)
                 {
                     case Message.MessageType.PLAIN:
-                        String sender = data[0].Substring(1, data[0].IndexOf('!'));
+                        String sender = data[0].Substring(1, data[0].IndexOf('!') - 1);
                         toPrint += "<" + sender + "> ";
                         toPrint += data[3].Substring(1);
                         for (int i = 4; i < data.Length; i++)
