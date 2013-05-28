@@ -5,6 +5,7 @@ using System.Text;
 using System.Net.Sockets;
 using System.Windows.Forms;
 using System.IO;
+using WinIRCL.IRC;
 
 namespace WinIRCL.Connections
 {
@@ -16,26 +17,37 @@ namespace WinIRCL.Connections
         private StreamWriter writer;
         private ConnectionInfo conn;
         private bool alive;
-        private Forms.IrcWindow output;
+
+        private String nick;
+        private Chat status;
+        private List<Chat> channels;
+        private List<Chat> queries;
         public Connection(ConnectionInfo cinfo)
         {
+            channels = new List<Chat>();
+            queries = new List<Chat>();
             conn = cinfo;
             alive = false;
+            nick = cinfo.nick;
         }
 
-        private void spawnIrcWindow()
+        public String GetNick()
         {
-            Application.Run(output = new Forms.IrcWindow(this));
+            return nick;
         }
+        public void SetNick(String newNick)
+        {
+            nick = newNick;
+        }
+
         public void Start()
         {
-            System.Threading.Thread t = new System.Threading.Thread(new System.Threading.ThreadStart(spawnIrcWindow));
-            t.Start();
             sock = new TcpClient(conn.address, conn.port);
             alive = true;
             stream = sock.GetStream();
             reader = new StreamReader(stream);
             writer = new StreamWriter(stream) { NewLine = "\r\n", AutoFlush = true };
+            status = new Chat(this, Chat.ChatType.STATUS);
             System.Threading.Thread t2 = new System.Threading.Thread(new System.Threading.ThreadStart(Listen));
             t2.Start();
         }
@@ -45,20 +57,24 @@ namespace WinIRCL.Connections
             while (alive)
             {
                 String line = reader.ReadLine();
-                PrintMessage(line + "~~~ " + messageCount);
+                PrintMessage(line);
                 if (line != null)
                 {
-                    switch (line.Split(new char[] { ':' })[0].Trim())
-                    {
-                        case "PING":
-                            SendMessage("PONG :" + line.Split(new char[] { ':' })[1].Trim());
-                            break;
-                    }
+                    String[] data = line.Split(new char[] { ' ' });
+                    if (line.Split(new char[] { ':' })[0].Trim() == "PING")
+                        SendMessage("PONG :" + line.Split(new char[] { ':' })[1].Trim());
                     if (messageCount == 2)
                     {
                         SendMessage("PASS ajlkdaglkdg");
                         SendMessage("NICK " + conn.nick);
                         SendMessage("USER WinIRCL 0 * :WinIrclTest");
+                    }
+                    if (data.Length > 1)
+                    {
+                        switch (data[1])
+                        {
+                            case "353": UpdateNames(data); break;
+                        }
                     }
                 }
                 else End();
@@ -68,19 +84,79 @@ namespace WinIRCL.Connections
             reader.Close();
             writer.Close();
         }
+        private void UpdateNames(String[] data)
+        {
+            Chat channel = null;
+            foreach (Chat c in channels)
+            {
+                if (c.GetName().ToLower().Equals(data[4].ToLower()))
+                {
+                    channel = c;
+                    break;
+                }
+            }
+            for (int i = 5; i < data.Length; i++)
+            {
+                if (data[i].Length > 0)
+                {
+                    User u = new User(data[i]);
+                    channel.AddUser(u);
+                }
+            }
+        }
         public void SendMessage(String s)
         {
             writer.WriteLine(s);
-            PrintMessage("----> " + s);
+            PrintMessage("- - - - > " + s);
         }
         public void PrintMessage(String s)
         {
-            MethodInvoker action = delegate
+            IRC.Message m = new IRC.Message();
+            m.raw = s;
+            String[] data = s.Split(new char[] { ' ' });
+            m.mtype = IRC.Message.MessageType.STATUS;
+            if(data.Length > 1)
+                switch (data[1].ToLower())
+                {
+                    case "notice": m.mtype = IRC.Message.MessageType.NOTICE; break;
+                    case "privmsg": m.mtype = IRC.Message.MessageType.PLAIN; break;
+                }
+            switch (m.mtype)
             {
-                String timestamp = DateTime.Now.ToShortTimeString();
-                output.MessagePanel.AppendText("\n(" + timestamp + ") " + s);
-            };
-            output.MessagePanel.BeginInvoke(action);
+                case IRC.Message.MessageType.PLAIN:
+                    foreach (Chat c in channels)
+                    {
+                        if (c.GetName().ToLower().Equals(data[2].ToLower()))
+                        {
+                            c.PrintMessage(m);
+                            break;
+                        }
+                    }
+                    break;
+                default: status.PrintMessage(m); break;
+            }
+        }
+        public void JoinChannel(String chan)
+        {
+            bool found = false;
+            foreach (Chat c in channels)
+            {
+                if (c.GetName().ToLower().Equals(chan.ToLower()))
+                {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                SendMessage("JOIN " + chan);
+                Chat chat = new Chat(this, Chat.ChatType.CHANNEL, chan);
+                channels.Add(chat);
+            }
+            else
+            {
+                /* TODO */
+            }
         }
         public bool End()
         {

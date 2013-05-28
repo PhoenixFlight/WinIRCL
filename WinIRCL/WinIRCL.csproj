@@ -68,6 +68,9 @@
     <Compile Include="Forms\NewConnectionWindow.Designer.cs">
       <DependentUpon>NewConnectionWindow.cs</DependentUpon>
     </Compile>
+    <Compile Include="IRC\Chat.cs" />
+    <Compile Include="IRC\Message.cs" />
+    <Compile Include="IRC\User.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Forms\ControlWindow.resx">
