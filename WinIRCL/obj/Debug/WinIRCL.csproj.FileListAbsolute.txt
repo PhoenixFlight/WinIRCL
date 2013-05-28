@@ -1,0 +1,11 @@
+c:\users\renthus\documents\visual studio 2012\Projects\WinIRCL\WinIRCL\bin\Debug\WinIRCL.exe.config
+C:\Users\Renthus\Documents\Visual Studio 2012\Projects\WinIRCL\WinIRCL\bin\Debug\WinIRCL.exe
+C:\Users\Renthus\Documents\Visual Studio 2012\Projects\WinIRCL\WinIRCL\bin\Debug\WinIRCL.pdb
+C:\Users\Renthus\Documents\Visual Studio 2012\Projects\WinIRCL\WinIRCL\obj\Debug\WinIRCL.csprojResolveAssemblyReference.cache
+C:\Users\Renthus\Documents\Visual Studio 2012\Projects\WinIRCL\WinIRCL\obj\Debug\WinIRCL.Properties.Resources.resources
+C:\Users\Renthus\Documents\Visual Studio 2012\Projects\WinIRCL\WinIRCL\obj\Debug\WinIRCL.csproj.GenerateResource.Cache
+C:\Users\Renthus\Documents\Visual Studio 2012\Projects\WinIRCL\WinIRCL\obj\Debug\WinIRCL.exe
+C:\Users\Renthus\Documents\Visual Studio 2012\Projects\WinIRCL\WinIRCL\obj\Debug\WinIRCL.pdb
+C:\Users\Renthus\Documents\Visual Studio 2012\Projects\WinIRCL\WinIRCL\obj\Debug\WinIRCL.ControlWindow.resources
+C:\Users\Renthus\Documents\Visual Studio 2012\Projects\WinIRCL\WinIRCL\obj\Debug\WinIRCL.NewConnectionWindow.resources
+C:\Users\Renthus\Documents\Visual Studio 2012\Projects\WinIRCL\WinIRCL\obj\Debug\WinIRCL.Forms.IrcWindow.resources

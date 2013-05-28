@@ -1,0 +1,12 @@
+STARTSRV=0
+ADDRESS=irc.synirc.net
+NICK=Phoenix
+NAME=SynIRC
+PORT=6667
+ENDSRV=0
+STARTSRV=1
+NAME=PurpleSurge
+ADDRESS=irc.purplesurge.net
+NICK=Pho
+PORT=6667
+ENDSRV=1
