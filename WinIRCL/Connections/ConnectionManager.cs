@@ -23,9 +23,12 @@ namespace WinIRCL.Connections
         }
         public void CreateConnection(ConnectionInfo cinfo)
         {
-            Connection c = new Connection(cinfo);
-            servers.Add(cinfo.SID, c);
-            c.Start();
+            if(!servers.ContainsKey(cinfo.SID)) 
+            {
+                Connection c = new Connection(cinfo);
+                servers.Add(cinfo.SID, c);
+                c.Start();
+            }
         }
         public void KillConnection(int CID)
         {

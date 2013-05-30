@@ -74,6 +74,8 @@ namespace WinIRCL.Connections
                         switch (data[1])
                         {
                             case "353": UpdateNames(data); break;
+                            case "JOIN": SendMessage("NAMES " + data[2].Substring(1)); break;
+                            case "PART": SendMessage("NAMES " + data[2]); break;
                         }
                     }
                 }
@@ -84,17 +86,21 @@ namespace WinIRCL.Connections
             reader.Close();
             writer.Close();
         }
-        private void UpdateNames(String[] data)
+        private Chat FindChat(String chan)
         {
-            Chat channel = null;
             foreach (Chat c in channels)
             {
-                if (c.GetName().ToLower().Equals(data[4].ToLower()))
+                if (c.GetName().ToLower().Equals(chan.ToLower()))
                 {
-                    channel = c;
-                    break;
+                    return c;
                 }
             }
+            return null;
+        }
+        private void UpdateNames(String[] data)
+        {
+            Chat channel = FindChat(data[4]);
+            channel.ResetUsers();
             for (int i = 5; i < data.Length; i++)
             {
                 if (data[i].Length > 0)
@@ -124,30 +130,16 @@ namespace WinIRCL.Connections
             switch (m.mtype)
             {
                 case IRC.Message.MessageType.PLAIN:
-                    foreach (Chat c in channels)
-                    {
-                        if (c.GetName().ToLower().Equals(data[2].ToLower()))
-                        {
-                            c.PrintMessage(m);
-                            break;
-                        }
-                    }
+                    FindChat(data[2]).PrintMessage(m);
+                    m.mtype = IRC.Message.MessageType.STATUS;
+                    status.PrintMessage(m);
                     break;
                 default: status.PrintMessage(m); break;
             }
         }
         public void JoinChannel(String chan)
         {
-            bool found = false;
-            foreach (Chat c in channels)
-            {
-                if (c.GetName().ToLower().Equals(chan.ToLower()))
-                {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found)
+            if (FindChat(chan) == null)
             {
                 SendMessage("JOIN " + chan);
                 Chat chat = new Chat(this, Chat.ChatType.CHANNEL, chan);

@@ -72,6 +72,7 @@
             this.MessagePanel.ForeColor = System.Drawing.Color.White;
             this.MessagePanel.Location = new System.Drawing.Point(0, 0);
             this.MessagePanel.Name = "MessagePanel";
+            this.MessagePanel.ReadOnly = true;
             this.MessagePanel.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
             this.MessagePanel.Size = new System.Drawing.Size(503, 376);
             this.MessagePanel.TabIndex = 0;

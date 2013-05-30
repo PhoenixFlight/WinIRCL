@@ -85,5 +85,10 @@ namespace WinIRCL.IRC
                 users.Add(u.nick.ToLower(), u);
             window.UpdateUsers(users);
         }
+        public void ResetUsers()
+        {
+            users.Clear();
+            window.UpdateUsers(users);
+        }
     }
 }

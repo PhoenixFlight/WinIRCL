@@ -20,5 +20,6 @@ namespace WinIRCL.IRC
         };
         public MessageType mtype;
         public String raw;
+        public String sender;
     }
 }
