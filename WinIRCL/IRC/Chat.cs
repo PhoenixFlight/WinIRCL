@@ -20,15 +20,10 @@ namespace WinIRCL.IRC
         private ChatType type;
         private String name;
         private Forms.IrcWindow window;
-        public Chat(Connections.Connection c, ChatType chatType, String name)
+        private String topic;
+        public Chat(Connections.Connection c, ChatType chatType, String name) : this(c, chatType)
         {
             this.name = name;
-            type = chatType;
-            conn = c;
-            users = new Dictionary<string, User>();
-
-            System.Threading.Thread t = new System.Threading.Thread(new System.Threading.ThreadStart(spawnIrcWindow));
-            t.Start();
         }
         public Chat(Connections.Connection c, ChatType chatType)
         {
@@ -39,6 +34,11 @@ namespace WinIRCL.IRC
 
             System.Threading.Thread t = new System.Threading.Thread(new System.Threading.ThreadStart(spawnIrcWindow));
             t.Start();
+        }
+        public void SetTopic(String text)
+        {
+            topic = text;
+            window.SetTopic(text);
         }
         public ChatType GetChatType()
         {
@@ -56,15 +56,23 @@ namespace WinIRCL.IRC
         {
             String toPrint = "(" + DateTime.Now.ToLongTimeString() + ") ";
             String[] data = msg.raw.Split(new char[] { ' ' });
+            String sender = null;
+            if(msg.sender != null)
+                sender = msg.sender.Substring(1, msg.sender.IndexOf('!') - 1);
             if(type == ChatType.CHANNEL) {
                 switch (msg.mtype)
                 {
                     case Message.MessageType.PLAIN:
-                        String sender = data[0].Substring(1, data[0].IndexOf('!') - 1);
                         toPrint += "<" + sender + "> ";
                         toPrint += data[3].Substring(1);
                         for (int i = 4; i < data.Length; i++)
                             toPrint += " " + data[i];
+                        break;
+                    case Message.MessageType.JOIN:
+                        toPrint += sender + " has joined " + name;
+                        break;
+                    case Message.MessageType.PART:
+                        toPrint += sender + " has left " + name;
                         break;
                 }
             }
@@ -74,7 +82,18 @@ namespace WinIRCL.IRC
             }
             MethodInvoker action = delegate
             {
-                String timestamp = DateTime.Now.ToShortTimeString();
+                window.MessagePanel.Select(window.MessagePanel.TextLength, 0);
+                switch (msg.mtype)
+                {
+                    case Message.MessageType.JOIN: window.MessagePanel.SelectionColor = System.Drawing.Color.Green; break;
+                    case Message.MessageType.NICK: window.MessagePanel.SelectionColor = System.Drawing.Color.Green; break;
+                    case Message.MessageType.NOTICE: window.MessagePanel.SelectionColor = System.Drawing.Color.Red; break;
+                    case Message.MessageType.PART: window.MessagePanel.SelectionColor = System.Drawing.Color.Red; break;
+                    case Message.MessageType.PLAIN: window.MessagePanel.SelectionColor = System.Drawing.Color.White; break;
+                    case Message.MessageType.QUIT: window.MessagePanel.SelectionColor = System.Drawing.Color.Red; break;
+                    case Message.MessageType.STATUS: window.MessagePanel.SelectionColor = System.Drawing.Color.Red; break;
+                    default: window.MessagePanel.SelectionColor = System.Drawing.Color.White; break;
+                }
                 window.MessagePanel.AppendText(toPrint + "\n");
             };
             window.MessagePanel.BeginInvoke(action);

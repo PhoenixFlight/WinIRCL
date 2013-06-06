@@ -57,7 +57,6 @@ namespace WinIRCL.Connections
             while (alive)
             {
                 String line = reader.ReadLine();
-                PrintMessage(line);
                 if (line != null)
                 {
                     String[] data = line.Split(new char[] { ' ' });
@@ -73,9 +72,37 @@ namespace WinIRCL.Connections
                     {
                         switch (data[1])
                         {
+                            case "332": FindChat(data[3]).SetTopic(line.Substring(line.IndexOf(data[4]))); break;
                             case "353": UpdateNames(data); break;
-                            case "JOIN": SendMessage("NAMES " + data[2].Substring(1)); break;
-                            case "PART": SendMessage("NAMES " + data[2]); break;
+                            case "JOIN": SendMessage("NAMES " + data[2].Substring(1));
+                                FindChat(data[2].Substring(1)).PrintMessage(new IRC.Message()
+                                {
+                                    mtype = IRC.Message.MessageType.JOIN,
+                                    sender = data[0],
+                                    raw = line
+                                });
+                                break;
+                            case "PART": SendMessage("NAMES " + data[2]);
+                                FindChat(data[2]).PrintMessage(new IRC.Message()
+                                {
+                                    mtype = IRC.Message.MessageType.PART,
+                                    sender = data[0],
+                                    raw = line
+                                });
+                                break;
+                            case "PRIVMSG": FindChat(data[2]).PrintMessage(new IRC.Message() { 
+                                    mtype = IRC.Message.MessageType.PLAIN, 
+                                    sender = data[0], 
+                                    raw = line, 
+                                    contents = line.Substring(line.Substring(1).IndexOf(':'))
+                                }); 
+                                break;
+                            default: status.PrintMessage(new IRC.Message()
+                                {
+                                    mtype = IRC.Message.MessageType.STATUS,
+                                    raw = line
+                                });
+                                break;
                         }
                     }
                 }
@@ -113,29 +140,10 @@ namespace WinIRCL.Connections
         public void SendMessage(String s)
         {
             writer.WriteLine(s);
-            PrintMessage("- - - - > " + s);
-        }
-        public void PrintMessage(String s)
-        {
-            IRC.Message m = new IRC.Message();
-            m.raw = s;
-            String[] data = s.Split(new char[] { ' ' });
-            m.mtype = IRC.Message.MessageType.STATUS;
-            if(data.Length > 1)
-                switch (data[1].ToLower())
-                {
-                    case "notice": m.mtype = IRC.Message.MessageType.NOTICE; break;
-                    case "privmsg": m.mtype = IRC.Message.MessageType.PLAIN; break;
-                }
-            switch (m.mtype)
-            {
-                case IRC.Message.MessageType.PLAIN:
-                    FindChat(data[2]).PrintMessage(m);
-                    m.mtype = IRC.Message.MessageType.STATUS;
-                    status.PrintMessage(m);
-                    break;
-                default: status.PrintMessage(m); break;
-            }
+            status.PrintMessage(new IRC.Message() {
+                mtype = IRC.Message.MessageType.STATUS,
+                raw = "- - - - > " + s
+            });
         }
         public void JoinChannel(String chan)
         {

@@ -8,7 +8,7 @@ namespace WinIRCL.IRC
 {
     public struct User
     {
-        public enum Rank
+        public enum Rank : int
         {
             NORMAL,
             VOP,
@@ -21,13 +21,15 @@ namespace WinIRCL.IRC
         public String nick;
         public String user;
         public String host;
-        public User(String basic) {
+        public String displayNick { get; set; }
+        public User(String basic) : this(){
             rank = Rank.NORMAL;
             nick = "";
             user = "";
             host = "";
             if (basic.Substring(0, 1).Equals(":"))
                 basic = basic.Substring(1);
+            displayNick = basic;
             switch (basic.Substring(0, 1))
             {
                 case "+": rank = Rank.VOP; break;

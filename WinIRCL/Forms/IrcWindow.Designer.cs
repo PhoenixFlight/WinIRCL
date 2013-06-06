@@ -32,10 +32,13 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.MessagePanel = new System.Windows.Forms.RichTextBox();
             this.UsersList = new System.Windows.Forms.ListBox();
+            this.TopicPanel = new System.Windows.Forms.Panel();
+            this.TopicTextBox = new System.Windows.Forms.RichTextBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
+            this.TopicPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // TextInputBox
@@ -57,6 +60,7 @@
             // 
             this.splitContainer1.Panel1.BackColor = System.Drawing.Color.Black;
             this.splitContainer1.Panel1.Controls.Add(this.MessagePanel);
+            this.splitContainer1.Panel1.Controls.Add(this.TopicPanel);
             // 
             // splitContainer1.Panel2
             // 
@@ -70,11 +74,11 @@
             this.MessagePanel.BackColor = System.Drawing.Color.Black;
             this.MessagePanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.MessagePanel.ForeColor = System.Drawing.Color.White;
-            this.MessagePanel.Location = new System.Drawing.Point(0, 0);
+            this.MessagePanel.Location = new System.Drawing.Point(0, 40);
             this.MessagePanel.Name = "MessagePanel";
             this.MessagePanel.ReadOnly = true;
             this.MessagePanel.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.MessagePanel.Size = new System.Drawing.Size(503, 376);
+            this.MessagePanel.Size = new System.Drawing.Size(503, 336);
             this.MessagePanel.TabIndex = 0;
             this.MessagePanel.Text = "";
             this.MessagePanel.TextChanged += new System.EventHandler(this.MessagePanel_TextChanged);
@@ -89,6 +93,30 @@
             this.UsersList.Size = new System.Drawing.Size(118, 376);
             this.UsersList.TabIndex = 0;
             // 
+            // TopicPanel
+            // 
+            this.TopicPanel.BackColor = System.Drawing.Color.White;
+            this.TopicPanel.Controls.Add(this.TopicTextBox);
+            this.TopicPanel.Dock = System.Windows.Forms.DockStyle.Top;
+            this.TopicPanel.Enabled = false;
+            this.TopicPanel.Location = new System.Drawing.Point(0, 0);
+            this.TopicPanel.Name = "TopicPanel";
+            this.TopicPanel.Size = new System.Drawing.Size(503, 40);
+            this.TopicPanel.TabIndex = 1;
+            this.TopicPanel.Visible = false;
+            // 
+            // TopicTextBox
+            // 
+            this.TopicTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TopicTextBox.Enabled = false;
+            this.TopicTextBox.Location = new System.Drawing.Point(0, 0);
+            this.TopicTextBox.Name = "TopicTextBox";
+            this.TopicTextBox.ReadOnly = true;
+            this.TopicTextBox.Size = new System.Drawing.Size(503, 40);
+            this.TopicTextBox.TabIndex = 0;
+            this.TopicTextBox.Text = "";
+            this.TopicTextBox.Visible = false;
+            // 
             // IrcWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -98,10 +126,12 @@
             this.Controls.Add(this.TextInputBox);
             this.Name = "IrcWindow";
             this.Text = "IrcWindow";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.IrcWindow_FormClosing);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
+            this.TopicPanel.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -113,5 +143,7 @@
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.ListBox UsersList;
         public System.Windows.Forms.RichTextBox MessagePanel;
+        private System.Windows.Forms.Panel TopicPanel;
+        private System.Windows.Forms.RichTextBox TopicTextBox;
     }
 }

@@ -19,8 +19,16 @@ namespace WinIRCL.Forms
         public IrcWindow(Connection c, Chat chat)
         {
             InitializeComponent();
+            UsersList.DisplayMember = "displayNick";
             conn = c;
             this.chat = chat;
+            if (chat.GetChatType() == Chat.ChatType.CHANNEL)
+            {
+                TopicPanel.Enabled = true;
+                TopicPanel.Visible = true;
+                TopicTextBox.Enabled = true;
+                TopicTextBox.Visible = true;
+            }
         }
 
         private void TextInputBox_KeyDown(object sender, KeyEventArgs e)
@@ -49,17 +57,44 @@ namespace WinIRCL.Forms
             MethodInvoker invoker = delegate
             {
                 UsersList.Items.Clear();
-                foreach (User u in users.Values)
+                Dictionary<String, User> temp = new Dictionary<string,User>(users);
+                foreach (KeyValuePair<String, User> pair in temp)
                 {
-                    UsersList.Items.Add(u.nick);
+                    User u = pair.Value;
+                    int where = -1;
+                    for (int i = 0; i < UsersList.Items.Count && where == -1; i++)
+                    {
+                        User user = (User)(UsersList.Items[i]);
+                        if ((int)(user.rank) < (int)(u.rank))
+                            where = i;
+                        else if (user.nick.CompareTo(u.nick) >= 0)
+                            where = i;
+                    }
+                    if (where == -1)
+                        UsersList.Items.Add(u);
+                    else UsersList.Items.Insert(where, u);
                 }
             };
             UsersList.BeginInvoke(invoker);
+        }
+        public void SetTopic(String topic)
+        {
+            MethodInvoker invoker = delegate
+            {
+                TopicTextBox.Text = topic;
+            };
+            TopicTextBox.BeginInvoke(invoker);
         }
         private void MessagePanel_TextChanged(object sender, EventArgs e)
         {
             MessagePanel.SelectionStart = MessagePanel.Text.Length;
             MessagePanel.ScrollToCaret();
+        }
+
+        private void IrcWindow_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            e.Cancel = true;
+            Visible = false;
         }
     }
 }
